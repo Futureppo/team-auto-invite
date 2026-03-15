@@ -1,0 +1,7 @@
+# ChatGPT Team 管理员的 JWT Token
+JWT_TOKEN=
+# ChatGPT 客户端版本号
+OAI_CLIENT_VERSION=prod-eddc2f6ff65fee2d0d6439e379eab94fe3047f72
+
+# 服务端口
+PORT=8080
