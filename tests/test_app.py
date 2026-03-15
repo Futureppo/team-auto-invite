@@ -185,6 +185,45 @@ class RedeemApiTestCase(unittest.TestCase):
             ],
         )
 
+    def test_redeem_api_rejects_non_string_code(self) -> None:
+        with patch.object(
+            invite_app,
+            "check_token_status",
+            return_value={"ok": True, "account_id": "acct_123", "email": "admin@example.com"},
+        ):
+            response = self.client.post(
+                "/api/redeem",
+                json={"email": "user@example.com", "code": 123},
+            )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), {"success": False, "message": "兑换码不能为空"})
+        self.assertEqual(self.fetch_invite_records(), [])
+
+    def test_redeem_api_rejects_non_string_email(self) -> None:
+        with patch.object(
+            invite_app,
+            "check_token_status",
+            return_value={"ok": True, "account_id": "acct_123", "email": "admin@example.com"},
+        ):
+            response = self.client.post(
+                "/api/redeem",
+                json={"email": ["user@example.com"], "code": "valid-001"},
+            )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), {"success": False, "message": "邮箱格式不正确"})
+        self.assertEqual(self.fetch_invite_records(), [])
+
+    def test_invite_api_rejects_non_string_email(self) -> None:
+        response = self.client.post(
+            "/api/invite",
+            json={"email": {"address": "user@example.com"}},
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.get_json(), {"success": False, "message": "邮箱格式不正确"})
+
 
 if __name__ == "__main__":
     unittest.main()

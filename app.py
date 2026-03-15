@@ -117,6 +117,13 @@ def normalize_redeem_code(code: str) -> str:
     return code.strip().upper()
 
 
+def normalize_optional_string(value) -> str | None:
+    """验证输入是否为字符串，并返回去除首尾空白后的结果"""
+    if not isinstance(value, str):
+        return None
+    return value.strip()
+
+
 def decode_token(token: str) -> dict:
     """解码 JWT，提取 account_id 等信息"""
     try:
@@ -372,7 +379,11 @@ def api_invite():
     if not data or not data.get("email"):
         return jsonify({"success": False, "message": "请输入邮箱地址"}), 400
 
-    email = data["email"].strip().lower()
+    email = normalize_optional_string(data["email"])
+    if email is None:
+        return jsonify({"success": False, "message": "邮箱格式不正确"}), 400
+
+    email = email.lower()
     if not validate_email(email):
         return jsonify({"success": False, "message": "邮箱格式不正确"}), 400
 
@@ -391,8 +402,16 @@ def api_redeem():
     if not data or not data.get("email") or not data.get("code"):
         return jsonify({"success": False, "message": "请输入邮箱地址和兑换码"}), 400
 
-    email = data["email"].strip().lower()
-    code = normalize_redeem_code(data["code"])
+    email = normalize_optional_string(data["email"])
+    code = normalize_optional_string(data["code"])
+
+    if email is None:
+        return jsonify({"success": False, "message": "邮箱格式不正确"}), 400
+    if code is None:
+        return jsonify({"success": False, "message": "兑换码不能为空"}), 400
+
+    email = email.lower()
+    code = normalize_redeem_code(code)
 
     if not validate_email(email):
         return jsonify({"success": False, "message": "邮箱格式不正确"}), 400
