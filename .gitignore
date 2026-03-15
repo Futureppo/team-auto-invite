@@ -3,3 +3,5 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+data/*
+!data/.gitkeep

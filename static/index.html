@@ -4,9 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>操飞奥特曼</title>
+    <title>ChatGPT Team 邀请</title>
     <meta name="description" content="输入邮箱，获取 ChatGPT Team 席位邀请">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #f4efe7;
+            --panel: rgba(255, 255, 255, 0.84);
+            --line: rgba(89, 72, 55, 0.14);
+            --text: #221c15;
+            --muted: #7d7064;
+            --primary: #3b3025;
+            --primary-2: #241a12;
+            --success: #1f7a50;
+            --danger: #ae4133;
+            --shadow: 0 24px 60px rgba(54, 40, 24, 0.14);
+        }
+
         *,
         *::before,
         *::after {
@@ -16,67 +32,46 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f5f5f0;
-            color: #1a1a1a;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        body::before,
-        body::after {
-            content: '';
-            position: fixed;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        body::before {
-            top: -30%;
-            right: -20%;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(180, 160, 130, .12) 0%, transparent 70%);
-        }
-
-        body::after {
-            bottom: -20%;
-            left: -15%;
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(140, 120, 100, .08) 0%, transparent 70%);
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top right, rgba(201, 123, 74, 0.16), transparent 24%),
+                radial-gradient(circle at bottom left, rgba(89, 72, 55, 0.1), transparent 28%),
+                linear-gradient(135deg, #f4efe7 0%, #efe7dc 100%);
         }
 
         .card {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 440px;
-            padding: 48px 40px;
-            margin: 20px;
-            background: rgba(255, 255, 255, .85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, .6);
-            box-shadow: 0 4px 24px rgba(0, 0, 0, .04), 0 12px 48px rgba(0, 0, 0, .06);
-            animation: cardIn .6s cubic-bezier(.16, 1, .3, 1) both;
+            width: min(100%, 480px);
+            padding: 42px 34px;
+            border-radius: 28px;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            box-shadow: var(--shadow);
         }
 
-        @keyframes cardIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(.98);
-            }
+        .topbar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 18px;
+        }
 
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        .ghost-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.74);
         }
 
         .logo-wrap {
@@ -86,147 +81,147 @@
         }
 
         .logo {
-            width: 56px;
-            height: 56px;
-            background: #1a1a1a;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, .15);
-            transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
-        }
-
-        .logo:hover {
-            transform: scale(1.08) rotate(-3deg);
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(145deg, var(--primary) 0%, var(--primary-2) 100%);
+            box-shadow: 0 10px 24px rgba(36, 26, 18, 0.28);
         }
 
         .logo svg {
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
         }
 
         .header {
             text-align: center;
-            margin-bottom: 36px;
+            margin-bottom: 32px;
         }
 
         .header h1 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 8px;
-            letter-spacing: -.02em;
+            font-size: 28px;
+            letter-spacing: -0.04em;
         }
 
         .header p {
+            margin-top: 10px;
+            color: var(--muted);
             font-size: 14px;
-            color: #8a8072;
-            line-height: 1.5;
+            line-height: 1.7;
         }
 
-        .form-group {
-            margin-bottom: 20px;
+        .field {
+            margin-bottom: 18px;
         }
 
-        .form-group label {
+        .field label {
             display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #3d3529;
             margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #41372b;
         }
 
-        .input-wrap input {
+        .input {
             width: 100%;
-            padding: 14px 16px;
-            font-size: 15px;
-            font-family: inherit;
-            color: #1a1a1a;
-            background: rgba(255, 255, 255, .8);
-            border: 1.5px solid #e0dbd3;
-            border-radius: 12px;
+            padding: 15px 16px;
+            border: 1.5px solid rgba(89, 72, 55, 0.16);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.88);
+            color: var(--text);
+            font: inherit;
+        }
+
+        .input:focus {
             outline: none;
-            transition: all .25s ease;
+            border-color: rgba(201, 123, 74, 0.7);
+            box-shadow: 0 0 0 4px rgba(201, 123, 74, 0.14);
         }
 
-        .input-wrap input::placeholder {
-            color: #bbb5aa;
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .input-wrap input:focus {
-            border-color: #8a7b6b;
-            box-shadow: 0 0 0 3px rgba(138, 123, 107, .12);
-            background: #fff;
-        }
-
-        .input-wrap input:hover:not(:focus) {
-            border-color: #c5bdb2;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 14px 24px;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: inherit;
-            color: #fff;
-            background: linear-gradient(135deg, #3d3529, #2a2118);
+        .button {
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            letter-spacing: .02em;
-            transition: all .3s cubic-bezier(.34, 1.56, .64, 1);
+            font: inherit;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
         }
 
-        .btn-submit::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .1), transparent);
-            transition: left .5s ease;
-        }
-
-        .btn-submit:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(61, 53, 41, .3);
-        }
-
-        .btn-submit:hover:not(:disabled)::before {
-            left: 100%;
-        }
-
-        .btn-submit:active:not(:disabled) {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(61, 53, 41, .2);
-        }
-
-        .btn-submit:disabled {
-            opacity: .7;
+        .button:disabled {
+            opacity: 0.7;
             cursor: not-allowed;
         }
 
-        .btn-submit .spinner {
+        .button-primary {
+            flex: 1 1 180px;
+            min-height: 50px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+            box-shadow: 0 10px 24px rgba(36, 26, 18, 0.26);
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .spinner {
             display: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, .3);
-            border-top-color: #fff;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            animation: spin .7s linear infinite;
-            margin: 0 auto;
+            border: 2px solid rgba(255, 255, 255, 0.24);
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
         }
 
-        .btn-submit.loading .btn-text {
+        .button.loading .button-label {
             display: none;
         }
 
-        .btn-submit.loading .spinner {
+        .button.loading .spinner {
+            display: inline-block;
+        }
+
+        .message {
+            display: none;
+            margin-top: 18px;
+            padding: 13px 15px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            border: 1px solid transparent;
+        }
+
+        .message.show {
             display: block;
+        }
+
+        .message.success {
+            color: var(--success);
+            background: rgba(31, 122, 80, 0.08);
+            border-color: rgba(31, 122, 80, 0.15);
+        }
+
+        .message.error {
+            color: var(--danger);
+            background: rgba(174, 65, 51, 0.08);
+            border-color: rgba(174, 65, 51, 0.15);
+        }
+
+        .footer-note {
+            margin-top: 22px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+            text-align: center;
         }
 
         @keyframes spin {
@@ -235,81 +230,14 @@
             }
         }
 
-        .message {
-            margin-top: 20px;
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.5;
-            display: none;
-            animation: msgIn .35s cubic-bezier(.16, 1, .3, 1) both;
-        }
-
-        @keyframes msgIn {
-            from {
-                opacity: 0;
-                transform: translateY(-8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .message.success {
-            display: block;
-            background: rgba(34, 139, 34, .08);
-            color: #1a7a1a;
-            border: 1px solid rgba(34, 139, 34, .15);
-        }
-
-        .message.error {
-            display: block;
-            background: rgba(180, 60, 40, .08);
-            color: #a03020;
-            border: 1px solid rgba(180, 60, 40, .15);
-        }
-
-        .footer-note {
-            text-align: center;
-            margin-top: 28px;
-            font-size: 12px;
-            color: #b0a898;
-            line-height: 1.6;
-        }
-
-        .gh-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 16px;
-            padding: 10px 20px;
-            border-radius: 10px;
-            background: #1a1a1a;
-            color: #fff;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all .25s ease;
-        }
-
-        .gh-link:hover {
-            background: #333;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
-        }
-
-        @media (max-width: 480px) {
+        @media (max-width: 520px) {
             .card {
-                padding: 36px 24px;
-                border-radius: 20px;
+                padding: 32px 20px;
             }
 
-            .header h1 {
-                font-size: 20px;
+            .actions,
+            .button-primary {
+                width: 100%;
             }
         }
     </style>
@@ -317,73 +245,104 @@
 
 <body>
     <div class="card">
+        <div class="topbar">
+            <a class="ghost-link" href="/admin">进入管理后台</a>
+        </div>
+
         <div class="logo-wrap">
             <div class="logo">
-                <svg viewBox="0 0 24 24" fill="none">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071.005l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855L13.1 8.364l2.02-1.166a.076.076 0 0 1 .071-.006l4.83 2.786a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.654zm2.01-3.028l-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zm-12.64 4.135l-2.02-1.164a.08.08 0 0 1-.038-.057V6.085a4.499 4.499 0 0 1 7.37-3.456l-.14.08-4.78 2.758a.795.795 0 0 0-.392.681zm1.097-2.365l2.602-1.5 2.607 1.5v3.005l-2.602 1.5-2.607-1.5z"
                         fill="white" />
                 </svg>
             </div>
         </div>
+
         <div class="header">
             <h1>ChatGPT Team</h1>
-            <p>输入邮箱，获取 Team 席位邀请</p>
+            <p>输入邮箱发送邀请。</p>
         </div>
+
         <form id="inviteForm">
-            <div class="form-group">
+            <div class="field">
                 <label for="emailInput">邮箱地址</label>
-                <div class="input-wrap">
-                    <input type="email" id="emailInput" name="email" placeholder="your@email.com" required
-                        autocomplete="email" autofocus>
-                </div>
+                <input class="input" type="email" id="emailInput" name="email" placeholder="your@email.com" required
+                    autocomplete="email" autofocus>
             </div>
-            <button type="submit" class="btn-submit" id="submitBtn">
-                <span class="btn-text">发送邀请</span>
-                <div class="spinner"></div>
-            </button>
+
+            <div class="actions">
+                <button type="submit" class="button button-primary" id="inviteButton">
+                    <span class="button-label">发送邀请</span>
+                    <span class="spinner"></span>
+                </button>
+            </div>
         </form>
-        <div id="message" class="message"></div>
-        <p class="footer-note">999人火车，请注意查收邮箱，报错就是死号了，或者席位满了</p>
-        <a class="gh-link" href="https://github.com/Futureppo/team-auto-invite" target="_blank">
-            <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
-                <path
-                    d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-            </svg>
-            GitHub
-        </a>
+
+        <div id="inviteMessage" class="message"></div>
+
+        <div class="footer-note">
+            邀请成功后请注意查收邮箱。后台 token 管理已移到独立页面。
+        </div>
     </div>
+
     <script>
-        const $ = id => document.getElementById(id);
-        const emailInput = $('emailInput'), submitBtn = $('submitBtn'), messageEl = $('message');
+        function showMessage(text, type) {
+            const element = document.getElementById('inviteMessage');
+            element.textContent = text;
+            element.className = `message show ${type}`;
+        }
 
-        $('inviteForm').addEventListener('submit', async e => {
-            e.preventDefault();
-            const email = emailInput.value.trim();
-            if (!email) return;
+        function hideMessage() {
+            const element = document.getElementById('inviteMessage');
+            element.className = 'message';
+            element.textContent = '';
+        }
 
-            submitBtn.classList.add('loading');
-            submitBtn.disabled = true;
-            messageEl.className = 'message';
+        function setButtonLoading(loading) {
+            const button = document.getElementById('inviteButton');
+            button.disabled = loading;
+            button.classList.toggle('loading', loading);
+        }
+
+        async function requestJson(url, options = {}) {
+            const response = await fetch(url, options);
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(data.message || '请求失败');
+            }
+
+            return data;
+        }
+
+        async function handleInviteSubmit(event) {
+            event.preventDefault();
+            hideMessage();
+
+            const email = document.getElementById('emailInput').value.trim();
+            if (!email) {
+                return;
+            }
+
+            setButtonLoading(true);
 
             try {
-                const resp = await fetch('/api/invite', {
+                const data = await requestJson('/api/invite', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email }),
                 });
-                const data = await resp.json();
-                messageEl.textContent = data.message;
-                messageEl.className = 'message ' + (data.success ? 'success' : 'error');
-                if (data.success) emailInput.value = '';
-            } catch {
-                messageEl.textContent = '网络请求失败，请稍后重试';
-                messageEl.className = 'message error';
+                showMessage(data.message, 'success');
+                document.getElementById('emailInput').value = '';
+            } catch (error) {
+                showMessage(error.message || '邀请失败', 'error');
             } finally {
-                submitBtn.classList.remove('loading');
-                submitBtn.disabled = false;
+                setButtonLoading(false);
             }
-        });
+        }
+
+        document.getElementById('inviteForm').addEventListener('submit', handleInviteSubmit);
     </script>
 </body>
 

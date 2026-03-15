@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token 管理后台</title>
+    <meta name="description" content="ChatGPT Team Token 管理后台">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4efe7;
+            --panel: rgba(255, 255, 255, 0.84);
+            --panel-strong: rgba(255, 255, 255, 0.96);
+            --line: rgba(89, 72, 55, 0.14);
+            --line-strong: rgba(89, 72, 55, 0.2);
+            --text: #221c15;
+            --muted: #7d7064;
+            --primary: #3b3025;
+            --primary-2: #241a12;
+            --success: #1f7a50;
+            --danger: #ae4133;
+            --warning: #9b6b00;
+            --shadow: 0 24px 60px rgba(54, 40, 24, 0.12);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            padding: 24px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top right, rgba(201, 123, 74, 0.16), transparent 28%),
+                radial-gradient(circle at bottom left, rgba(89, 72, 55, 0.12), transparent 30%),
+                linear-gradient(135deg, #f4efe7 0%, #efe7dc 100%);
+        }
+
+        .shell {
+            width: min(980px, 100%);
+            margin: 0 auto;
+        }
+
+        .hero,
+        .panel {
+            border-radius: 28px;
+            border: 1px solid var(--line);
+            background: var(--panel);
+            backdrop-filter: blur(18px);
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            padding: 28px 30px;
+            margin-bottom: 20px;
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .hero h1 {
+            font-size: clamp(24px, 4vw, 34px);
+            letter-spacing: -0.04em;
+        }
+
+        .hero p {
+            margin-top: 8px;
+            max-width: 620px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 22px;
+        }
+
+        .stat-card {
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: var(--panel-strong);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .stat-value {
+            margin-top: 8px;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .panel {
+            padding: 28px;
+        }
+
+        .panel-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: flex-start;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+        }
+
+        .panel-subtitle {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(59, 48, 37, 0.08);
+            color: var(--primary);
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+            transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+            text-decoration: none;
+        }
+
+        .button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .button-primary {
+            padding: 14px 18px;
+            color: #fff;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+            box-shadow: 0 10px 24px rgba(36, 26, 18, 0.26);
+        }
+
+        .button-secondary {
+            padding: 12px 16px;
+            color: var(--primary);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--line-strong);
+        }
+
+        .button-danger {
+            padding: 10px 14px;
+            color: var(--danger);
+            background: rgba(174, 65, 51, 0.08);
+            border: 1px solid rgba(174, 65, 51, 0.16);
+        }
+
+        .auth-box,
+        .token-box {
+            padding: 18px;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.72);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .auth-row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        .auth-row .field {
+            margin-bottom: 0;
+            flex: 1 1 240px;
+        }
+
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #41372b;
+        }
+
+        .input,
+        .textarea {
+            width: 100%;
+            border: 1.5px solid rgba(89, 72, 55, 0.16);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.88);
+            color: var(--text);
+            font: inherit;
+        }
+
+        .input {
+            padding: 15px 16px;
+        }
+
+        .textarea {
+            min-height: 120px;
+            padding: 16px;
+            resize: vertical;
+        }
+
+        .input:focus,
+        .textarea:focus {
+            outline: none;
+            border-color: rgba(201, 123, 74, 0.7);
+            box-shadow: 0 0 0 4px rgba(201, 123, 74, 0.14);
+        }
+
+        .message {
+            display: none;
+            margin: 18px 0;
+            padding: 13px 15px;
+            border-radius: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            border: 1px solid transparent;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            color: var(--success);
+            background: rgba(31, 122, 80, 0.08);
+            border-color: rgba(31, 122, 80, 0.15);
+        }
+
+        .message.error {
+            color: var(--danger);
+            background: rgba(174, 65, 51, 0.08);
+            border-color: rgba(174, 65, 51, 0.15);
+        }
+
+        .message.info {
+            color: var(--warning);
+            background: rgba(155, 107, 0, 0.08);
+            border-color: rgba(155, 107, 0, 0.15);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .token-list {
+            display: grid;
+            gap: 14px;
+            margin-top: 18px;
+        }
+
+        .token-card {
+            padding: 18px;
+            border-radius: 20px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.88);
+        }
+
+        .token-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .token-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .token-preview {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 12px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            word-break: break-all;
+        }
+
+        .token-meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 16px;
+            margin-top: 16px;
+            font-size: 12px;
+        }
+
+        .token-meta div {
+            padding: 11px 12px;
+            border-radius: 14px;
+            background: rgba(244, 239, 231, 0.9);
+            border: 1px solid rgba(89, 72, 55, 0.08);
+        }
+
+        .token-meta strong {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-pill.valid {
+            color: var(--success);
+            background: rgba(31, 122, 80, 0.1);
+        }
+
+        .status-pill.expired,
+        .status-pill.invalid,
+        .status-pill.not_team,
+        .status-pill.missing {
+            color: var(--danger);
+            background: rgba(174, 65, 51, 0.1);
+        }
+
+        .empty {
+            padding: 28px 18px;
+            border-radius: 20px;
+            border: 1px dashed rgba(89, 72, 55, 0.24);
+            background: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .helper,
+        .login-status {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.24);
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .button.loading .button-label {
+            display: none;
+        }
+
+        .button.loading .spinner {
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 720px) {
+            body {
+                padding: 14px;
+            }
+
+            .hero,
+            .panel {
+                padding: 22px 18px;
+            }
+
+            .stats,
+            .token-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-top,
+            .panel-head,
+            .toolbar,
+            .token-top,
+            .auth-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .nav-actions,
+            .button-primary,
+            .button-secondary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="shell">
+        <section class="hero">
+            <div class="hero-top">
+                <div>
+                    <h1>Token 管理后台</h1>
+                    <p>后台登录后可以查看 token 状态、添加新 token、删除旧 token。公开页面不展示内部运行细节。</p>
+                </div>
+                <div class="nav-actions">
+                    <a class="button button-secondary" href="/">返回邀请页</a>
+                    <button type="button" class="button button-secondary" id="refreshButton">刷新</button>
+                    <button type="button" class="button button-secondary" id="logoutButton">退出登录</button>
+                </div>
+            </div>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-label">总 Token</div>
+                    <div class="stat-value" id="statTotal">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">可用 Token</div>
+                    <div class="stat-value" id="statValid">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">冷却时间</div>
+                    <div class="stat-value" id="statCooldown">--</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <div class="panel-title">后台认证</div>
+                    <div class="panel-subtitle">请输入后台密码后再管理 token。</div>
+                </div>
+                <span class="badge" id="healthBadge">状态检查中</span>
+            </div>
+
+            <div class="auth-box" id="authBox">
+                <form id="loginForm">
+                    <div class="auth-row">
+                        <div class="field">
+                            <label for="passwordInput">后台密码</label>
+                            <input class="input" type="password" id="passwordInput" autocomplete="current-password"
+                                placeholder="请输入后台密码">
+                        </div>
+                        <button type="submit" class="button button-primary" id="loginButton">
+                            <span class="button-label">登录后台</span>
+                            <span class="spinner"></span>
+                        </button>
+                    </div>
+                </form>
+                <div class="login-status" id="loginStatus">登录后才允许查看、添加和删除 Token。</div>
+            </div>
+
+            <div id="tokenMessage" class="message"></div>
+
+            <div class="token-box hidden" id="adminSection">
+                <form id="tokenForm">
+                    <div class="field">
+                        <label for="tokenInput">新增 Token</label>
+                        <textarea class="textarea" id="tokenInput" name="token" placeholder="粘贴完整 JWT Token"></textarea>
+                    </div>
+                    <button type="submit" class="button button-primary" id="tokenButton">
+                        <span class="button-label">添加 Token</span>
+                        <span class="spinner"></span>
+                    </button>
+                </form>
+
+                <div class="toolbar">
+                    <span class="badge" id="tokenSummaryBadge">Token 池为空</span>
+                </div>
+
+                <div id="tokenList" class="token-list"></div>
+            </div>
+
+            <div class="helper" style="margin-top: 18px;">
+                这里只展示管理所需的必要信息。
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const state = {
+            tokens: [],
+            health: null,
+            cooldownSeconds: null,
+            adminPassword: sessionStorage.getItem('adminPassword') || '',
+            isAuthenticated: false,
+        };
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        function showMessage(text, type) {
+            const element = document.getElementById('tokenMessage');
+            element.textContent = text;
+            element.className = `message show ${type}`;
+        }
+
+        function hideMessage() {
+            const element = document.getElementById('tokenMessage');
+            element.className = 'message';
+            element.textContent = '';
+        }
+
+        function setButtonLoading(id, loading) {
+            const button = document.getElementById(id);
+            button.disabled = loading;
+            button.classList.toggle('loading', loading);
+        }
+
+        function formatTime(value) {
+            if (!value) {
+                return '未知';
+            }
+
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) {
+                return value;
+            }
+
+            return date.toLocaleString('zh-CN', {
+                hour12: false,
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+            });
+        }
+
+        async function requestJson(url, options = {}) {
+            const response = await fetch(url, options);
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                const error = new Error(data.message || '请求失败');
+                error.status = response.status;
+                throw error;
+            }
+
+            return data;
+        }
+
+        function adminHeaders(extraHeaders = {}) {
+            return {
+                ...extraHeaders,
+                'X-Admin-Password': state.adminPassword,
+            };
+        }
+
+        function setAdminAuthenticated(authenticated) {
+            state.isAuthenticated = authenticated;
+            document.getElementById('authBox').classList.toggle('hidden', authenticated);
+            document.getElementById('adminSection').classList.toggle('hidden', !authenticated);
+            document.getElementById('logoutButton').style.display = authenticated ? 'inline-flex' : 'none';
+            document.getElementById('refreshButton').disabled = !authenticated;
+            document.getElementById('loginStatus').textContent = authenticated
+                ? '后台已登录，可以刷新、添加和删除 Token。'
+                : '登录后才允许查看、添加和删除 Token。';
+        }
+
+        function renderStats() {
+            const total = state.isAuthenticated ? String(state.tokens.length) : '--';
+            const valid = state.isAuthenticated
+                ? String(state.tokens.filter((item) => item.is_valid).length)
+                : '--';
+            const cooldown = state.isAuthenticated && state.cooldownSeconds !== null
+                ? `${state.cooldownSeconds}s`
+                : '--';
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statValid').textContent = valid;
+            document.getElementById('statCooldown').textContent = cooldown;
+
+            const badge = document.getElementById('healthBadge');
+            if (state.health?.status === 'ok') {
+                badge.textContent = state.isAuthenticated ? '后台已认证' : '服务在线';
+                badge.style.background = 'rgba(31, 122, 80, 0.1)';
+                badge.style.color = 'var(--success)';
+            } else {
+                badge.textContent = '状态异常';
+                badge.style.background = 'rgba(174, 65, 51, 0.1)';
+                badge.style.color = 'var(--danger)';
+            }
+
+            document.getElementById('tokenSummaryBadge').textContent =
+                state.tokens.length > 0 ? `Token 总数 ${state.tokens.length} / 可用 ${state.tokens.filter((item) => item.is_valid).length}` : 'Token 池为空';
+        }
+
+        function renderTokens() {
+            const list = document.getElementById('tokenList');
+            if (!state.isAuthenticated) {
+                list.innerHTML = '';
+                return;
+            }
+
+            if (!state.tokens.length) {
+                list.innerHTML = `
+                    <div class="empty">
+                        当前还没有任何 Token。<br>
+                        在上方粘贴一个有效的 Team JWT Token 后点击“添加 Token”。
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = state.tokens.map((token) => `
+                <article class="token-card">
+                    <div class="token-top">
+                        <div>
+                            <div class="token-title">${escapeHtml(token.email || '未识别邮箱')}</div>
+                            <div class="token-preview">${escapeHtml(token.token_preview)}</div>
+                        </div>
+                        <div>
+                            <span class="status-pill ${escapeHtml(token.status)}">${escapeHtml(token.status_label)}</span>
+                            <button type="button" class="button button-danger" data-token-id="${escapeHtml(token.id)}" style="margin-top: 10px;">删除</button>
+                        </div>
+                    </div>
+
+                    <div class="token-meta">
+                        <div>
+                            <strong>账号 ID</strong>
+                            <span>${escapeHtml(token.account_id || '未知')}</span>
+                        </div>
+                        <div>
+                            <strong>套餐类型</strong>
+                            <span>${escapeHtml(token.plan_type || '未知')}</span>
+                        </div>
+                        <div>
+                            <strong>过期时间</strong>
+                            <span>${escapeHtml(formatTime(token.expires_at))}</span>
+                        </div>
+                        <div>
+                            <strong>添加时间</strong>
+                            <span>${escapeHtml(formatTime(token.created_at))}</span>
+                        </div>
+                    </div>
+
+                    <div class="helper" style="margin-top: 12px;">${escapeHtml(token.message || '')}</div>
+                </article>
+            `).join('');
+
+            list.querySelectorAll('[data-token-id]').forEach((button) => {
+                button.addEventListener('click', async () => {
+                    await handleDeleteToken(button.getAttribute('data-token-id'));
+                });
+            });
+        }
+
+        async function loadDashboard() {
+            try {
+                state.health = await requestJson('/api/health');
+
+                if (state.adminPassword) {
+                    try {
+                        const tokenData = await requestJson('/api/tokens', {
+                            headers: adminHeaders(),
+                        });
+                        state.tokens = tokenData.tokens || [];
+                        state.cooldownSeconds = tokenData.cooldown_seconds ?? null;
+                        setAdminAuthenticated(true);
+                    } catch (error) {
+                        if (error.status === 401) {
+                            state.adminPassword = '';
+                            state.tokens = [];
+                            state.cooldownSeconds = null;
+                            sessionStorage.removeItem('adminPassword');
+                            setAdminAuthenticated(false);
+                            showMessage('后台登录已失效，请重新输入密码', 'info');
+                        } else {
+                            throw error;
+                        }
+                    }
+                } else {
+                    state.tokens = [];
+                    state.cooldownSeconds = null;
+                    setAdminAuthenticated(false);
+                }
+
+                renderStats();
+                renderTokens();
+            } catch (error) {
+                renderStats();
+                renderTokens();
+                showMessage(error.message || '加载数据失败', 'error');
+            }
+        }
+
+        async function handleLoginSubmit(event) {
+            event.preventDefault();
+            hideMessage();
+
+            const input = document.getElementById('passwordInput');
+            const password = input.value.trim();
+            if (!password) {
+                showMessage('请输入后台密码', 'info');
+                return;
+            }
+
+            setButtonLoading('loginButton', true);
+
+            try {
+                await requestJson('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password }),
+                });
+
+                state.adminPassword = password;
+                sessionStorage.setItem('adminPassword', password);
+                input.value = '';
+                setAdminAuthenticated(true);
+                showMessage('后台登录成功', 'success');
+                await loadDashboard();
+            } catch (error) {
+                state.adminPassword = '';
+                state.tokens = [];
+                state.cooldownSeconds = null;
+                sessionStorage.removeItem('adminPassword');
+                setAdminAuthenticated(false);
+                showMessage(error.message || '后台登录失败', 'error');
+            } finally {
+                setButtonLoading('loginButton', false);
+            }
+        }
+
+        function handleLogout() {
+            state.adminPassword = '';
+            state.tokens = [];
+            state.cooldownSeconds = null;
+            sessionStorage.removeItem('adminPassword');
+            setAdminAuthenticated(false);
+            hideMessage();
+            renderStats();
+            renderTokens();
+        }
+
+        async function handleTokenSubmit(event) {
+            event.preventDefault();
+            hideMessage();
+
+            const input = document.getElementById('tokenInput');
+            const token = input.value.trim();
+            if (!token) {
+                showMessage('请粘贴完整 Token', 'info');
+                return;
+            }
+
+            setButtonLoading('tokenButton', true);
+
+            try {
+                const data = await requestJson('/api/tokens', {
+                    method: 'POST',
+                    headers: adminHeaders({ 'Content-Type': 'application/json' }),
+                    body: JSON.stringify({ token }),
+                });
+
+                input.value = '';
+                showMessage(data.message, 'success');
+                await loadDashboard();
+            } catch (error) {
+                showMessage(error.message || '添加 Token 失败', 'error');
+            } finally {
+                setButtonLoading('tokenButton', false);
+            }
+        }
+
+        async function handleDeleteToken(tokenId) {
+            hideMessage();
+            if (!tokenId) {
+                return;
+            }
+
+            const confirmed = window.confirm('确认删除这个 Token 吗？');
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                const data = await requestJson(`/api/tokens/${tokenId}`, {
+                    method: 'DELETE',
+                    headers: adminHeaders(),
+                });
+                showMessage(data.message, 'success');
+                await loadDashboard();
+            } catch (error) {
+                showMessage(error.message || '删除 Token 失败', 'error');
+            }
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', handleLoginSubmit);
+        document.getElementById('tokenForm').addEventListener('submit', handleTokenSubmit);
+        document.getElementById('refreshButton').addEventListener('click', async () => {
+            if (!state.isAuthenticated) {
+                showMessage('请先登录后台', 'info');
+                return;
+            }
+            await loadDashboard();
+        });
+        document.getElementById('logoutButton').addEventListener('click', handleLogout);
+
+        setAdminAuthenticated(false);
+        loadDashboard();
+    </script>
+</body>
+
+</html>
