@@ -148,6 +148,9 @@ def _migrate_columns(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE redeem_codes ADD COLUMN max_uses INTEGER NOT NULL DEFAULT 1")
     if "use_count" not in cols:
         conn.execute("ALTER TABLE redeem_codes ADD COLUMN use_count INTEGER NOT NULL DEFAULT 0")
+    # 并发处理计数器：跟踪当前正在处理中的请求数
+    if "pending_count" not in cols:
+        conn.execute("ALTER TABLE redeem_codes ADD COLUMN pending_count INTEGER NOT NULL DEFAULT 0")
 
     cols2 = {r[1] for r in conn.execute("PRAGMA table_info(invite_records)").fetchall()}
     if "client_ip" not in cols2:
@@ -351,13 +354,13 @@ def generate_redeem_codes(count: int, prefix: str, length: int, max_uses: int = 
 
 
 def claim_redeem_code(code: str, email: str) -> dict:
+    """原子地预占一个兑换码名额，支持多线程并发处理"""
     now = utc_now_iso()
-    stale_before = (utc_now() - timedelta(seconds=PENDING_TTL_SECONDS)).isoformat(timespec="seconds")
 
     with db_connection() as conn:
         conn.execute("BEGIN IMMEDIATE")
         row = conn.execute(
-            "SELECT status, reserved_at, max_uses, use_count FROM redeem_codes WHERE code = ?",
+            "SELECT status, max_uses, use_count, pending_count FROM redeem_codes WHERE code = ?",
             (code,),
         ).fetchone()
 
@@ -365,39 +368,49 @@ def claim_redeem_code(code: str, email: str) -> dict:
             return {"ok": False, "status": "invalid_code", "message": "兑换码无效"}
         if row["status"] == "disabled":
             return {"ok": False, "status": "disabled_code", "message": "兑换码已禁用"}
-        if row["use_count"] >= row["max_uses"]:
+
+        pending = row["pending_count"] or 0
+        used = row["use_count"] or 0
+
+        if used >= row["max_uses"]:
             return {"ok": False, "status": "used_code", "message": "兑换码已达使用上限"}
-        if row["status"] == "pending" and row["reserved_at"] and row["reserved_at"] > stale_before:
+        # 已用 + 正在处理 >= 上限，说明名额已被占满（包括正在处理的）
+        if used + pending >= row["max_uses"]:
             return {"ok": False, "status": "pending_code", "message": "兑换码正在处理中，请稍后重试"}
 
+        # 原子递增 pending_count，预占一个名额
         conn.execute(
-            "UPDATE redeem_codes SET status = 'pending', reserved_by_email = ?, reserved_at = ? WHERE code = ?",
+            "UPDATE redeem_codes SET pending_count = pending_count + 1, reserved_by_email = ?, reserved_at = ? WHERE code = ?",
             (email, now, code),
         )
     return {"ok": True}
 
 
 def complete_redeem_code(code: str, email: str) -> None:
+    """邀请成功：递减 pending_count，递增 use_count"""
     with db_connection() as conn:
         conn.execute("BEGIN IMMEDIATE")
         row = conn.execute("SELECT max_uses, use_count FROM redeem_codes WHERE code = ?", (code,)).fetchone()
         new_count = (row["use_count"] if row else 0) + 1
         new_status = "used" if row and new_count >= row["max_uses"] else "unused"
         conn.execute(
-            "UPDATE redeem_codes SET status = ?, use_count = ?, used_by_email = ?, used_at = ?,"
-            " reserved_by_email = NULL, reserved_at = NULL WHERE code = ?",
+            "UPDATE redeem_codes SET status = ?, use_count = ?, pending_count = MAX(pending_count - 1, 0),"
+            " used_by_email = ?, used_at = ? WHERE code = ?",
             (new_status, new_count, email, utc_now_iso(), code),
         )
 
 
 def release_redeem_code(code: str) -> None:
+    """邀请失败：递减 pending_count，释放名额"""
     with db_connection() as conn:
-        row = conn.execute("SELECT max_uses, use_count FROM redeem_codes WHERE code = ?", (code,)).fetchone()
+        conn.execute("BEGIN IMMEDIATE")
+        row = conn.execute("SELECT max_uses, use_count, pending_count FROM redeem_codes WHERE code = ?", (code,)).fetchone()
+        new_pending = max((row["pending_count"] or 0) - 1, 0) if row else 0
         restore_status = "unused" if row and row["use_count"] < row["max_uses"] else "used"
         conn.execute(
-            "UPDATE redeem_codes SET status = ?, reserved_by_email = NULL, reserved_at = NULL"
-            " WHERE code = ? AND status = 'pending'",
-            (restore_status, code),
+            "UPDATE redeem_codes SET status = ?, pending_count = ?,"
+            " reserved_by_email = NULL, reserved_at = NULL WHERE code = ?",
+            (restore_status, new_pending, code),
         )
 
 
